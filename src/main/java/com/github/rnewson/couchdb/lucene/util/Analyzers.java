@@ -22,11 +22,13 @@ import java.util.Iterator;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.LowerCaseTokenizer;
+import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.PorterStemFilter;
 import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.WhitespaceTokenizer;
 import org.apache.lucene.analysis.br.BrazilianAnalyzer;
 import org.apache.lucene.analysis.cjk.CJKAnalyzer;
 import org.apache.lucene.analysis.cn.ChineseAnalyzer;
@@ -160,12 +162,25 @@ public enum Analyzers {
         public Analyzer newAnalyzer(final String args) {
             return new WhitespaceAnalyzer(Constants.VERSION);
         }
+    },
+    WDCASE {
+        @Override
+        public Analyzer newAnalyzer(final String args) {
+            return new WhitespaceDowncaseAnalyzer();
+        }
     };
 
     private static final class PorterStemAnalyzer extends Analyzer {
         @Override
         public TokenStream tokenStream(final String fieldName, final Reader reader) {
             return new PorterStemFilter(new LowerCaseTokenizer(Constants.VERSION, reader));
+        }
+    }
+
+    private static final class WhitespaceDowncaseAnalyzer extends Analyzer {
+        @Override
+        public TokenStream tokenStream(final String fieldName, final Reader reader) {
+            return new LowerCaseFilter(new WhitespaceTokenizer(Constants.VERSION, reader));
         }
     }
 
